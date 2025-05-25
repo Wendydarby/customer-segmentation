@@ -22,6 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+"""Main module for customer segmentation analysis.
+
+This module provides functionality for RFM (Recency, Frequency, Monetary) analysis 
+and customer segmentation using K-means clustering.
+"""
+
 # main.py
 
 import pandas as pd
@@ -36,14 +42,45 @@ import logging
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
-# Add validation for numeric inputs
+# Configuration parameters
+CONFIG = {
+    'random_state': 42,  # Seed for reproducibility
+    'max_clusters': 10,  # Maximum number of clusters to try
+    'scaling': 'standard'  # Scaling method ('standard' or 'minmax')
+}
+
 def validate_input(value, min_val, max_val, param_name):
+    """Validate numeric input parameters.
+
+    Args:
+        value (int or float): Value to validate
+        min_val (int or float): Minimum allowed value
+        max_val (int or float): Maximum allowed value
+        param_name (str): Name of parameter for error messages
+
+    Raises:
+        TypeError: If value is not numeric
+        ValueError: If value is outside allowed range
+    """
     if not isinstance(value, (int, float)):
         raise TypeError(f"{param_name} must be numeric")
     if value < min_val or value > max_val:
         raise ValueError(f"{param_name} must be between {min_val} and {max_val}")
 
 def check_dataframe(df):
+    """Validate DataFrame has required columns for RFM analysis.
+    
+    Args:
+        df (pandas.DataFrame): Input DataFrame to validate
+
+    Raises:
+        ValueError: If required columns are missing
+        
+    Required columns:
+        - Recency: Days since last purchase
+        - Frequency: Number of purchases
+        - Monetary: Total spend amount
+    """
     required_cols = ['Recency', 'Frequency', 'Monetary']
     if not all(col in df.columns for col in required_cols):
         raise ValueError(f"DataFrame must contain columns: {required_cols}")
@@ -58,7 +95,7 @@ def sanitize_data(df):
 
 # Step 1: Load and prepare data
 # For demonstration, create a synthetic dataset
-np.random.seed(42)
+np.random.seed(CONFIG['random_state'])
 
 # Create a sample dataset with 200 customers
 # Features: Recency (days since last purchase), Frequency (number of purchases), Monetary (total spend)
@@ -86,8 +123,8 @@ df_scaled = scaler.fit_transform(df[features])
 
 # Step 3: Determine optimal number of clusters using the Elbow Method
 wcss = []  # Within-Cluster Sum of Square
-for i in range(1, 11):
-    kmeans = KMeans(n_clusters=i, init='k-means++', random_state=42)
+for i in range(1, CONFIG['max_clusters'] + 1):
+    kmeans = KMeans(n_clusters=i, init='k-means++',random_state=42)
     kmeans.fit(df_scaled)
     wcss.append(kmeans.inertia_)
 
