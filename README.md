@@ -27,7 +27,7 @@ This project is designed to analyze customer data using clustering techniques. I
 2. Create and activate virtual environment:
    On Windows:
    ```
-  python -m venv venv
+   python -m venv venv
    .\venv\Scripts\activate
    ```
    On macOs/Linux:
